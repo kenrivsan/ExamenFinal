@@ -1,0 +1,108 @@
+﻿@page "/Ingreso-Smart"
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager NavigationManager
+
+<h3>Igresos Smart</h3>
+
+<EditForm Model="@smart" OnValidSubmit="@Guardar">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label label for "NoSerial"> Ingreso el codigo serial</label>
+        <InputText id="NoSerial" @bind-Value="smart.NoSerial" class="from-control" />
+        <ValidationMessage For="() => smart.NoSerial" />
+    </div
+    <div class="form-group">
+        <label label for "Marca"> Ingrese la marcal</label>
+        <InputText id="Marca" @bind-Value="smart.Marca" class="from-control" />
+        <ValidationMessage For="() => smart.Marca" />
+    </div
+    <div class="form-group">
+        <label label for "Modelo"> Ingreso el modelo codigo serial</label>
+        <InputText id="Modelo" @bind-Value="smart.Modelo" class="from-control" />
+        <ValidationMessage For="() => smart.Modelo" />
+    </div
+    <div class="form-group">
+        <label label for "SistemaOperativo"> Ingreso el sistema operativo</label>
+        <InputText id="SistemaOperativo" @bind-Value="smart.SistemaOperativo" class="from-control" />
+        <ValidationMessage For="() => smart.SistemaOperativo" />
+    </div
+
+    <div class="form-group">
+        <label label for "NoCamaras"> Ingrese la cantidad de camaras</label>
+        <InputNumber id="NoCamaras" @bind-Value="smart.NoCamaras" class="from-control" />
+    </div
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+    </div>
+    <div>
+        <label label for "Contador"> Cantidad de datos ingresados</label>
+        
+    </div>
+
+</EditForm>
+@if (smarts != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>NumeroSerial</th>
+                <th>Marca</th>
+                <th>Modelo</th>
+                <th>SistemaOpertivo</th>
+                <th>CantCamaras</th>
+               
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var aux in smarts)
+            {
+                <tr>
+                    <td>@aux.NoSerial</td>
+                    <td>@aux.Marca</td>
+                    <td>@aux.Modelo</td>
+                    <td>@aux.SistemaOperativo</td>
+                    <td>@aux.NoCamaras</td>
+                    <td>
+                        <button class="btn btn-warning"
+                         @onclick="@(() => NavigationManager.NavigateTo($"/Edicio-Smart/{aux.NoSerial}"))">
+                         Editar   
+                         </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-danger"
+                            @onclick="@(() => Borrar(aux.NoSerial))">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    List<clsSmartPhone> smarts = new List<clsSmartPhone>();
+    private clsSmartPhone smart = new clsSmartPhone();
+
+    protected async Task Guardar()
+    {
+        smarts.Add(smart);
+        smart = new clsSmartPhone();
+        await localStorage.SetItemAsync("JsonCel", smarts);
+
+    }
+    protected override async Task OnInitializedAsync()
+    {  //La primera vez que se corre poner en comentarios, pues como no existen datos
+       //convierta la lista catedraticos en null
+       smarts = await localStorage.GetItemAsync<List<clsSmartPhone>>("JsonCel");
+    }
+    protected async Task Borrar(string Eliminado)
+    {
+        smarts.Remove(smarts.First(c => c.NoSerial == Eliminado));
+        await localStorage.SetItemAsync("JsonCel", smart);
+    }
+
+
+}
